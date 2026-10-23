@@ -1,0 +1,186 @@
+package com.mixesgates.devplant.mixes.mm_shell;
+
+import android.os.Bundle;
+import android.view.Gravity;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
+
+import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
+import androidx.viewpager2.widget.ViewPager2;
+
+import com.mixesgates.devplant.contracts.Changes;
+import com.mixesgates.devplant.mixes.R;
+import com.mixesgates.devplant.mixes.mm_alerts.AlertsFragment;
+import com.mixesgates.devplant.mixes.mm_dashboard.DashboardFragment;
+import com.mixesgates.devplant.mixes.mm_data.Store;
+import com.mixesgates.devplant.mixes.mm_fields.FieldsFragment;
+import com.mixesgates.devplant.mixes.mm_history.HistoryFragment;
+import com.mixesgates.devplant.mixes.mm_library.GuideEntryFragment;
+import com.mixesgates.devplant.mixes.mm_library.LibraryFragment;
+import com.mixesgates.devplant.mixes.mm_result.ResultFragment;
+import com.mixesgates.devplant.mixes.mm_scan.ScanFragment;
+import com.mixesgates.devplant.mixes.mm_search.SearchFragment;
+import com.mixesgates.devplant.mixes.mm_settings.SettingsFragment;
+import com.mixesgates.devplant.mixes.mm_settings.ThemePrefs;
+import com.mixesgates.devplant.mixes.mm_theme.Ui;
+
+/** The one activity: header on top, pager of main screens, island at the bottom, details above. */
+public class ShellActivity extends AppCompatActivity implements Nav {
+
+    private static final String[] TABS = {"Scan", "History", "Fields", "Guide", "Health"};
+    private static final String[] SUBTITLES = {"Scan a leaf", "Past scans", "My crops and fields",
+            "Pest & disease guide", "Field health"};
+    private static final int[] ICONS = {R.drawable.mm_ic_scan, R.drawable.mm_ic_history,
+            R.drawable.mm_ic_fields, R.drawable.mm_ic_library, R.drawable.mm_ic_dashboard};
+
+    private Header header;
+    private Island island;
+    private ViewPager2 pager;
+    private Store store;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        ThemePrefs.apply(this);
+        super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
+        store = Store.of(this);
+
+        FrameLayout root = new FrameLayout(this);
+        LinearLayout column = Ui.column(this);
+        header = new Header(this, this);
+        column.addView(header);
+        pager = new ViewPager2(this);
+        pager.setId(R.id.mm_pager);
+        pager.setOffscreenPageLimit(1);
+        pager.setAdapter(new Pages(this));
+        column.addView(pager, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, 0, 1));
+        root.addView(column);
+
+        island = new Island(this, TABS, ICONS, index -> pager.setCurrentItem(index, false));
+        FrameLayout.LayoutParams islandLp = new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT,
+                Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL);
+        root.addView(island, islandLp);
+
+        FrameLayout overlay = new FrameLayout(this);
+        overlay.setId(R.id.mm_overlay);
+        root.addView(overlay, new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        setContentView(root);
+
+        // Opaque only while a detail screen is open, so the system-bar gaps are not see-through.
+        FragmentManager fm = getSupportFragmentManager();
+        Runnable overlayBackground = () -> overlay.setBackgroundColor(
+                fm.getBackStackEntryCount() > 0 ? Ui.color(this, R.color.mm_bg) : 0);
+        fm.addOnBackStackChangedListener(overlayBackground::run);
+        overlayBackground.run();
+
+        ViewCompat.setOnApplyWindowInsetsListener(root, (v, insets) -> {
+            Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars()
+                    | WindowInsetsCompat.Type.displayCutout());
+            Insets ime = insets.getInsets(WindowInsetsCompat.Type.ime());
+            header.setPadding(header.getPaddingLeft(), bars.top + Ui.dp(this, 8),
+                    header.getPaddingRight(), header.getPaddingBottom());
+            islandLp.bottomMargin = bars.bottom + Ui.dp(this, 16);
+            island.setLayoutParams(islandLp);
+            overlay.setPadding(bars.left, bars.top, bars.right, Math.max(bars.bottom, ime.bottom));
+            return insets;
+        });
+
+        pager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                island.select(position);
+                header.setSubtitle(SUBTITLES[position]);
+            }
+        });
+        island.select(pager.getCurrentItem());
+        header.setSubtitle(SUBTITLES[pager.getCurrentItem()]);
+
+        store.listen(this, this::refreshUnread, Changes.Topic.ALERTS);
+        refreshUnread();
+    }
+
+    private void refreshUnread() {
+        store.load(this, s -> s.alerts().unreadCount(), header::setUnread);
+    }
+
+    private void open(Fragment fragment) {
+        getSupportFragmentManager().beginTransaction()
+                .setReorderingAllowed(true)
+                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out,
+                        android.R.anim.fade_in, android.R.anim.fade_out)
+                .replace(R.id.mm_overlay, fragment)
+                .addToBackStack(null)
+                .commit();
+    }
+
+    @Override
+    public void showTab(int tab) {
+        getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        pager.setCurrentItem(tab, false);
+    }
+
+    @Override
+    public void openResult(long scanId) {
+        open(ResultFragment.newInstance(scanId));
+    }
+
+    @Override
+    public void openGuide(String key) {
+        open(GuideEntryFragment.newInstance(key));
+    }
+
+    @Override
+    public void openAlerts() {
+        open(new AlertsFragment());
+    }
+
+    @Override
+    public void openSearch() {
+        open(new SearchFragment());
+    }
+
+    @Override
+    public void openSettings() {
+        open(new SettingsFragment());
+    }
+
+    @Override
+    public void back() {
+        getOnBackPressedDispatcher().onBackPressed();
+    }
+
+    private static final class Pages extends FragmentStateAdapter {
+        Pages(@NonNull AppCompatActivity activity) {
+            super(activity);
+        }
+
+        @NonNull
+        @Override
+        public Fragment createFragment(int position) {
+            switch (position) {
+                case TAB_HISTORY: return new HistoryFragment();
+                case TAB_FIELDS: return new FieldsFragment();
+                case TAB_LIBRARY: return new LibraryFragment();
+                case TAB_DASHBOARD: return new DashboardFragment();
+                default: return new ScanFragment();
+            }
+        }
+
+        @Override
+        public int getItemCount() {
+            return TABS.length;
+        }
+    }
+}

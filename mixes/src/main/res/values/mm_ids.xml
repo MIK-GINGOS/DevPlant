@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Stable ids so the pager and overlay keep their fragments when the activity is recreated. -->
+    <item name="mm_pager" type="id" />
+    <item name="mm_overlay" type="id" />
+</resources>

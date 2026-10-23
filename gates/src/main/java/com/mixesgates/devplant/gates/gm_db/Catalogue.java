@@ -1,0 +1,208 @@
+package com.mixesgates.devplant.gates.gm_db;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Starter catalogue of crops, diseases, pests and treatments common in smallholder farming.
+ * Keys match the labels the on-device model outputs. Advice is general; chemical product
+ * choice, rates and pre-harvest intervals must follow the label and local extension service.
+ */
+final class Catalogue {
+
+    private Catalogue() {
+    }
+
+    private static final String[][] CROPS = {
+            {"Maize", "Zea mays"},
+            {"Tomato", "Solanum lycopersicum"},
+            {"Potato", "Solanum tuberosum"},
+            {"Cassava", "Manihot esculenta"},
+            {"Beans", "Phaseolus vulgaris"},
+            {"Cabbage", "Brassica oleracea var. capitata"},
+    };
+
+    // key, name, scientific name, crops, symptoms, spread
+    private static final String[][] DISEASES = {
+            {"early_blight", "Early blight", "Alternaria solani", "Tomato, Potato",
+                    "Brown spots with rings like a target, usually on older, lower leaves first, often with a yellow halo.",
+                    "Fungus survives on crop debris and soil; spread by rain splash and wind. Favoured by warm, humid weather."},
+            {"late_blight", "Late blight", "Phytophthora infestans", "Tomato, Potato",
+                    "Large, water-soaked grey-green patches that turn brown; white fuzzy growth under the leaf in damp weather. Can kill a field in days.",
+                    "Spores travel on wind and rain from infected plants and tubers. Favoured by cool, wet conditions."},
+            {"grey_leaf_spot", "Grey leaf spot", "Cercospora zeae-maydis", "Maize",
+                    "Long, narrow, rectangular grey to tan lesions running between the leaf veins.",
+                    "Fungus survives on maize residue; worse with high humidity, long leaf wetness and maize after maize."},
+            {"northern_leaf_blight", "Northern leaf blight", "Exserohilum turcicum", "Maize",
+                    "Cigar-shaped grey-green to tan lesions, 2 to 15 cm long, starting on lower leaves.",
+                    "Spores from residue spread by wind and rain; favoured by moderate temperatures and heavy dew."},
+            {"common_rust", "Common rust", "Puccinia sorghi", "Maize",
+                    "Small, raised, cinnamon-brown powdery pustules on both sides of the leaf.",
+                    "Windborne spores; favoured by cool nights and high humidity."},
+            {"maize_lethal_necrosis", "Maize lethal necrosis", "MCMV with a potyvirus such as SCMV", "Maize",
+                    "Yellow mottling from the leaf base, then drying from the edges inwards; plants may die before tasselling.",
+                    "Viruses spread by thrips, aphids and beetles, and through seed and infected residue."},
+            {"cassava_mosaic", "Cassava mosaic disease", "Cassava mosaic begomoviruses", "Cassava",
+                    "Yellow or pale green mosaic patches, twisted and narrowed leaves, stunted plants.",
+                    "Spread by whiteflies and by planting cuttings from infected plants."},
+            {"cassava_brown_streak", "Cassava brown streak disease", "Cassava brown streak viruses", "Cassava",
+                    "Yellow blotches along the secondary veins of older leaves; brown streaks on stems; dry brown rot in roots.",
+                    "Spread by whiteflies and infected cuttings."},
+            {"angular_leaf_spot", "Angular leaf spot", "Pseudocercospora griseola", "Beans",
+                    "Angular grey-brown spots bounded by the leaf veins; leaves may yellow and drop.",
+                    "Seed-borne and spread by rain splash from infected residue."},
+            {"bean_rust", "Bean rust", "Uromyces appendiculatus", "Beans",
+                    "Small reddish-brown powdery pustules, often with a yellow halo, mostly under the leaf.",
+                    "Windborne spores; favoured by long periods of leaf wetness."},
+            {"black_rot", "Black rot", "Xanthomonas campestris pv. campestris", "Cabbage",
+                    "Yellow V-shaped patches starting at the leaf edge, with darkened veins.",
+                    "Bacteria carried on seed and in residue; spread by splashing water, tools and insects."},
+            {"leaf_spot", "Leaf spot (unspecified)", "Various fungi and bacteria", "All crops",
+                    "Brown or black spots on the leaf without a clear pattern. A general finding: compare with the guide or ask an expert.",
+                    "Usually spread by rain splash and infected residue; favoured by wet leaves."},
+            {"chlorosis", "Leaf yellowing (chlorosis)", "Nutrient shortage, waterlogging or virus", "All crops",
+                    "Leaves turn pale green or yellow, between the veins or all over.",
+                    "Not infectious by itself. Check soil fertility, drainage and for insects that carry viruses."},
+    };
+
+    private static final String[][] PESTS = {
+            {"fall_armyworm", "Fall armyworm", "Spodoptera frugiperda", "Maize",
+                    "Ragged holes and window-panes in young leaves, wet sawdust-like frass in the whorl; caterpillars with an inverted Y on the head.",
+                    "Moths fly long distances and lay egg masses on leaves; larvae feed deep in the whorl."},
+            {"aphids", "Aphids", "Aphidoidea", "Beans, Cabbage, Potato",
+                    "Clusters of small soft insects under leaves and on shoots; curled leaves and sticky honeydew.",
+                    "Multiply fast in dry weather; carry many plant viruses."},
+            {"whitefly", "Whitefly", "Bemisia tabaci", "Cassava, Tomato, Beans",
+                    "Tiny white insects fly up when leaves are disturbed; yellowing and sooty mould.",
+                    "Carry cassava mosaic and brown streak viruses and tomato yellow leaf curl virus."},
+            {"tomato_leafminer", "Tomato leafminer", "Phthorimaea absoluta (Tuta absoluta)", "Tomato",
+                    "Pale, irregular blotch mines in leaves with dark frass; holes in fruit.",
+                    "Small moths breed quickly; spread on transplants, fruit and packaging."},
+            {"diamondback_moth", "Diamondback moth", "Plutella xylostella", "Cabbage",
+                    "Small holes and transparent windows in leaves; small green caterpillars that wriggle and drop on a thread.",
+                    "Many generations a year; quickly becomes resistant to insecticides."},
+            {"cassava_green_mite", "Cassava green mite", "Mononychellus tanajoa", "Cassava",
+                    "Yellow speckles on young leaves, which become small and deformed; shoot tips look candle-like.",
+                    "Worst in the dry season; spread by wind and on cuttings."},
+            {"spider_mites", "Spider mites", "Tetranychus urticae", "Tomato, Beans, Cassava",
+                    "Fine yellow stippling, bronzing and fine webbing under leaves.",
+                    "Thrive in hot, dry, dusty conditions; outbreaks follow broad-spectrum sprays that kill their predators."},
+    };
+
+    // key, method, title, detail
+    private static final String[][] TREATMENTS = {
+            {"early_blight", "CULTURAL", "Remove and rotate", "Remove infected lower leaves, mulch the soil and rotate away from tomato and potato for 2 to 3 years."},
+            {"early_blight", "CULTURAL", "Keep leaves dry", "Water at the base in the morning and space plants for airflow."},
+            {"early_blight", "CHEMICAL", "Protectant fungicide", "Mancozeb, chlorothalonil or copper at first symptoms, repeated per label."},
+
+            {"late_blight", "CULTURAL", "Act fast", "Remove and destroy infected plants (do not compost). Do not keep tubers from infected plants as seed."},
+            {"late_blight", "CULTURAL", "Resistant varieties", "Plant resistant varieties and clean, certified seed tubers; hill up potatoes."},
+            {"late_blight", "CHEMICAL", "Fungicide programme", "Protectants such as mancozeb or copper before wet spells; systemic products such as metalaxyl mixtures under high pressure. Alternate groups."},
+
+            {"grey_leaf_spot", "CULTURAL", "Rotate and bury residue", "Rotate with beans or another non-cereal and bury or remove maize residue."},
+            {"grey_leaf_spot", "CULTURAL", "Tolerant hybrids", "Choose hybrids rated tolerant to grey leaf spot."},
+            {"grey_leaf_spot", "CHEMICAL", "Fungicide if early", "A strobilurin or triazole fungicide if lesions reach the ear leaf before tasselling."},
+
+            {"northern_leaf_blight", "CULTURAL", "Resistant varieties", "Use resistant hybrids; rotate and manage residue."},
+            {"northern_leaf_blight", "CHEMICAL", "Fungicide if severe", "Triazole or strobilurin fungicide when lesions spread up the plant before silking."},
+
+            {"common_rust", "CULTURAL", "Resistant varieties", "Most hybrids tolerate rust; plant early to escape peak spore loads."},
+            {"common_rust", "CHEMICAL", "Fungicide in seed crops", "Usually not economic; consider triazoles only in seed or sweet corn with heavy early infection."},
+
+            {"maize_lethal_necrosis", "CULTURAL", "Rogue and break the cycle", "Pull and destroy infected plants, avoid continuous maize, and leave a maize-free break with neighbours."},
+            {"maize_lethal_necrosis", "CULTURAL", "Clean seed", "Use certified seed and tolerant varieties; control weeds that host the vectors."},
+            {"maize_lethal_necrosis", "CHEMICAL", "Control vectors", "Seed treatment or sprays against thrips and aphids early in the season, per local advice."},
+
+            {"cassava_mosaic", "CULTURAL", "Clean cuttings", "Plant cuttings only from healthy, symptom-free plants; use resistant varieties."},
+            {"cassava_mosaic", "CULTURAL", "Rogue early", "Pull out plants showing symptoms in the first 3 months and replace them."},
+
+            {"cassava_brown_streak", "CULTURAL", "Clean planting material", "Use certified or tested cuttings and tolerant varieties; harvest early where roots rot."},
+            {"cassava_brown_streak", "CULTURAL", "Rogue and isolate", "Remove infected plants and keep new fields away from infected ones."},
+
+            {"angular_leaf_spot", "CULTURAL", "Clean seed and rotation", "Plant clean seed, rotate for 2 years and remove residue."},
+            {"angular_leaf_spot", "CHEMICAL", "Fungicide", "Copper or mancozeb at first symptoms in wet seasons."},
+
+            {"bean_rust", "CULTURAL", "Resistant varieties", "Grow resistant varieties and avoid planting next to old bean crops."},
+            {"bean_rust", "CHEMICAL", "Fungicide", "Sulphur, mancozeb or a triazole at first pustules."},
+
+            {"black_rot", "CULTURAL", "Clean seed and hygiene", "Use hot-water-treated or certified seed, rotate for 3 years away from brassicas, and do not work in wet plants."},
+            {"black_rot", "ORGANIC", "Copper sprays", "Copper may slow spread in wet weather but will not cure infected plants."},
+
+            {"leaf_spot", "CULTURAL", "Sanitation", "Remove spotted leaves, avoid wetting foliage and improve spacing."},
+            {"leaf_spot", "CULTURAL", "Confirm the cause", "Take a closer photo or check the guide for the crop; ask an extension officer before spraying."},
+
+            {"chlorosis", "CULTURAL", "Check soil and water", "Look for waterlogging or drought; test soil and correct nitrogen, magnesium or iron shortage."},
+            {"chlorosis", "CULTURAL", "Look for vectors", "Check under leaves for whiteflies and aphids, which spread viruses that cause yellowing."},
+
+            {"fall_armyworm", "CULTURAL", "Scout and hand-pick", "Check 20 plants in a W pattern twice a week; crush egg masses and larvae. Push-pull with desmodium and napier grass reduces attack."},
+            {"fall_armyworm", "ORGANIC", "Biological sprays", "Bacillus thuringiensis or spinosad into the whorl while larvae are small. Some farmers apply sand, ash or soil into the whorl."},
+            {"fall_armyworm", "CHEMICAL", "Targeted insecticide", "Emamectin benzoate or chlorantraniliprole when more than 20% of young plants are damaged. Spray into the whorl early or late in the day."},
+
+            {"aphids", "ORGANIC", "Soap or neem", "Spray insecticidal soap or neem oil under the leaves; strong water jets knock colonies off."},
+            {"aphids", "CULTURAL", "Protect natural enemies", "Ladybirds and lacewings control aphids; avoid broad-spectrum sprays."},
+
+            {"whitefly", "CULTURAL", "Traps and barriers", "Yellow sticky traps, insect netting for nurseries and removal of weed hosts."},
+            {"whitefly", "ORGANIC", "Neem or soap", "Neem oil or insecticidal soap under the leaves, repeated weekly."},
+
+            {"tomato_leafminer", "CULTURAL", "Remove mined leaves", "Pick and destroy mined leaves and fruit; use pheromone traps to monitor and mass-trap moths."},
+            {"tomato_leafminer", "ORGANIC", "Biological control", "Bacillus thuringiensis or spinosad against young larvae."},
+            {"tomato_leafminer", "CHEMICAL", "Rotate insecticides", "Chlorantraniliprole or emamectin benzoate, rotating groups to slow resistance."},
+
+            {"diamondback_moth", "ORGANIC", "Bt sprays", "Bacillus thuringiensis sprays against young caterpillars."},
+            {"diamondback_moth", "CULTURAL", "Break the cycle", "Rotate brassicas, remove crop residue and intercrop with tomato or onion."},
+
+            {"cassava_green_mite", "CULTURAL", "Tolerant varieties", "Plant hairy-leaved tolerant varieties and early in the rainy season."},
+            {"cassava_green_mite", "ORGANIC", "Predatory mites", "Released Typhlodromalus aripo predatory mites give lasting control where available."},
+
+            {"spider_mites", "CULTURAL", "Water and dust", "Irrigate, reduce dust and avoid broad-spectrum insecticides that kill predators."},
+            {"spider_mites", "ORGANIC", "Soap or neem", "Insecticidal soap, neem or sulphur under the leaves, repeated every 5 to 7 days."},
+    };
+
+    static void seed(DevPlantDatabase db) {
+        for (String[] c : CROPS) {
+            CropRow row = new CropRow();
+            row.name = c[0];
+            row.scientificName = c[1];
+            db.crops().insert(row);
+        }
+
+        List<DiseaseRow> diseases = new ArrayList<>();
+        for (String[] d : DISEASES) {
+            DiseaseRow row = new DiseaseRow();
+            row.subjectKey = d[0];
+            row.name = d[1];
+            row.scientificName = d[2];
+            row.crops = d[3];
+            row.symptoms = d[4];
+            row.spread = d[5];
+            diseases.add(row);
+        }
+        db.catalogue().insertDiseases(diseases);
+
+        List<PestRow> pests = new ArrayList<>();
+        for (String[] p : PESTS) {
+            PestRow row = new PestRow();
+            row.subjectKey = p[0];
+            row.name = p[1];
+            row.scientificName = p[2];
+            row.crops = p[3];
+            row.symptoms = p[4];
+            row.spread = p[5];
+            pests.add(row);
+        }
+        db.catalogue().insertPests(pests);
+
+        List<TreatmentRow> treatments = new ArrayList<>();
+        for (int i = 0; i < TREATMENTS.length; i++) {
+            String[] t = TREATMENTS[i];
+            TreatmentRow row = new TreatmentRow();
+            row.subjectKey = t[0];
+            row.method = t[1];
+            row.title = t[2];
+            row.detail = t[3];
+            row.sortOrder = i;
+            treatments.add(row);
+        }
+        db.catalogue().insertTreatments(treatments);
+    }
+}

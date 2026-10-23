@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Base.Theme.DevPlant" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/mm_leaf</item>
+        <item name="colorOnPrimary">@color/mm_surface</item>
+        <item name="colorPrimaryContainer">@color/mm_leaf_soft</item>
+        <item name="colorOnPrimaryContainer">@color/mm_ink</item>
+        <item name="colorSecondaryContainer">@color/mm_leaf_soft</item>
+        <item name="colorOnSecondaryContainer">@color/mm_ink</item>
+        <item name="colorSurface">@color/mm_surface</item>
+        <item name="colorOnSurface">@color/mm_ink</item>
+        <item name="colorOutline">@color/mm_line</item>
+        <item name="android:colorBackground">@color/mm_bg</item>
+        <item name="android:windowBackground">@color/mm_bg</item>
+    </style>
+
+    <style name="Theme.DevPlant" parent="Base.Theme.DevPlant" />
+</resources>

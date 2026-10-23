@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="mm_bg">#0F1611</color>
+    <color name="mm_surface">#18221B</color>
+    <color name="mm_ink">#E6EFE6</color>
+    <color name="mm_ink_soft">#9DB0A0</color>
+    <color name="mm_line">#2A382D</color>
+    <color name="mm_leaf">#6BC27A</color>
+    <color name="mm_leaf_soft">#1F3324</color>
+    <color name="mm_island">#253F2C</color>
+    <color name="mm_island_active">#4E9F5F</color>
+    <color name="mm_healthy">#6BC27A</color>
+    <color name="mm_disease">#E07A63</color>
+    <color name="mm_pest">#D9A54A</color>
+    <color name="mm_unsure">#A3A8B3</color>
+    <color name="mm_mild">#94C46B</color>
+    <color name="mm_moderate">#E3B04B</color>
+    <color name="mm_severe">#E07A63</color>
+</resources>
