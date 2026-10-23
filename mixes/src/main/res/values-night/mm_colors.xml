@@ -16,4 +16,9 @@
     <color name="mm_mild">#94C46B</color>
     <color name="mm_moderate">#E3B04B</color>
     <color name="mm_severe">#E07A63</color>
+    <!-- Glass menu, from crystal_io's mm_theme. -->
+    <color name="mm_glass_bg">#2118181C</color>
+    <color name="mm_glass_border">#2EFFFFFF</color>
+    <color name="mm_glass_accent">#FFFFFF</color>
+    <color name="mm_glass_on_accent">#16171A</color>
 </resources>

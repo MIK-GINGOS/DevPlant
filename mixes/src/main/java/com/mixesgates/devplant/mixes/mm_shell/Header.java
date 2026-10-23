@@ -5,13 +5,14 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.mixesgates.devplant.mixes.R;
 import com.mixesgates.devplant.mixes.mm_theme.Ui;
 
-/** Logo, title, and the search, alerts and settings buttons. */
+/** Logo, title, and the search and alerts buttons. */
 final class Header extends LinearLayout {
 
     private final TextView subtitle;
@@ -23,7 +24,9 @@ final class Header extends LinearLayout {
         setGravity(Gravity.CENTER_VERTICAL);
         setPadding(Ui.dp(c, 16), Ui.dp(c, 8), Ui.dp(c, 8), Ui.dp(c, 8));
 
-        addView(Ui.icon(c, R.drawable.mm_logo, Ui.color(c, R.color.mm_leaf), 30));
+        ImageView logo = Ui.icon(c, R.drawable.mm_logo, 0, 34);
+        logo.setImageTintList(null); // the logo keeps its own green
+        addView(logo);
         LinearLayout titles = Ui.column(c);
         titles.setPadding(Ui.dp(c, 10), 0, 0, 0);
         titles.addView(Ui.text(c, "DevPlant", Ui.Type.HEADING));
@@ -50,8 +53,6 @@ final class Header extends LinearLayout {
         bell.addView(badge, badgeLp);
         badge.setVisibility(View.GONE);
         addView(bell);
-
-        addView(Ui.iconButton(c, R.drawable.mm_ic_settings, "Settings", v -> nav.openSettings()));
     }
 
     void setSubtitle(String text) {

@@ -30,8 +30,8 @@ import java.util.Locale;
 /** Colours, text styles and the small building blocks every screen is made from. */
 public final class Ui {
 
-    /** Bottom padding for pager pages so content can scroll clear of the island. */
-    public static final int ISLAND_CLEARANCE_DP = 120;
+    /** Bottom padding for pager pages so content can scroll clear of the bottom menu. */
+    public static final int ISLAND_CLEARANCE_DP = 160;
 
     public enum Type { TITLE, HEADING, BODY, CAPTION, NUMBER, LABEL }
 

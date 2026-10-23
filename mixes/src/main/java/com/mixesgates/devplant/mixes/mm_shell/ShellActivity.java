@@ -7,6 +7,7 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -33,17 +34,14 @@ import com.mixesgates.devplant.mixes.mm_settings.SettingsFragment;
 import com.mixesgates.devplant.mixes.mm_settings.ThemePrefs;
 import com.mixesgates.devplant.mixes.mm_theme.Ui;
 
-/** The one activity: header on top, pager of main screens, island at the bottom, details above. */
+/** The one activity: header on top, pager of main screens, the menu at the bottom, details above. */
 public class ShellActivity extends AppCompatActivity implements Nav {
 
-    private static final String[] TABS = {"Scan", "History", "Fields", "Guide", "Health"};
     private static final String[] SUBTITLES = {"Scan a leaf", "Past scans", "My crops and fields",
             "Pest & disease guide", "Field health"};
-    private static final int[] ICONS = {R.drawable.mm_ic_scan, R.drawable.mm_ic_history,
-            R.drawable.mm_ic_fields, R.drawable.mm_ic_library, R.drawable.mm_ic_dashboard};
 
     private Header header;
-    private Island island;
+    private ControlMenu menu;
     private ViewPager2 pager;
     private Store store;
 
@@ -66,11 +64,38 @@ public class ShellActivity extends AppCompatActivity implements Nav {
                 ViewGroup.LayoutParams.MATCH_PARENT, 0, 1));
         root.addView(column);
 
-        island = new Island(this, TABS, ICONS, index -> pager.setCurrentItem(index, false));
-        FrameLayout.LayoutParams islandLp = new FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT,
+        // Tiles without an action are not built yet; they say so when tapped.
+        menu = new ControlMenu(this, new ControlMenu.Tile[]{
+                ControlMenu.Tile.page("Home", R.drawable.mm_ic_cc_home, TAB_DASHBOARD, () -> showTab(TAB_DASHBOARD)),
+                ControlMenu.Tile.planned("Security", R.drawable.mm_ic_cc_shield),
+                ControlMenu.Tile.page("Fields", R.drawable.mm_ic_cc_space, TAB_FIELDS, () -> showTab(TAB_FIELDS)),
+        }, new ControlMenu.Tile[]{
+                ControlMenu.Tile.action("Alerts", R.drawable.mm_ic_cc_bell_line, this::openAlerts),
+                ControlMenu.Tile.planned("Location", R.drawable.mm_ic_cc_location),
+                ControlMenu.Tile.planned("Share", R.drawable.mm_ic_cc_share),
+                ControlMenu.Tile.action("Settings", R.drawable.mm_ic_cc_sliders, this::openSettings),
+                ControlMenu.Tile.page("Camera", R.drawable.mm_ic_cc_camera, TAB_SCAN, () -> showTab(TAB_SCAN)),
+                ControlMenu.Tile.planned("Add", R.drawable.mm_ic_cc_add),
+                ControlMenu.Tile.page("Catalog", R.drawable.mm_ic_cc_catalog, TAB_LIBRARY, () -> showTab(TAB_LIBRARY)),
+                ControlMenu.Tile.planned("Active Profile", R.drawable.mm_ic_cc_profile),
+        });
+        FrameLayout.LayoutParams menuLp = new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT,
                 Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL);
-        root.addView(island, islandLp);
+        menuLp.leftMargin = Ui.dp(this, 16);
+        menuLp.rightMargin = Ui.dp(this, 16);
+        root.addView(menu, menuLp);
+        menu.setBackdropSource(column);
+
+        // Back closes the open menu before anything else.
+        OnBackPressedCallback closeMenu = new OnBackPressedCallback(false) {
+            @Override
+            public void handleOnBackPressed() {
+                menu.collapse();
+            }
+        };
+        getOnBackPressedDispatcher().addCallback(this, closeMenu);
+        menu.setExpandListener(closeMenu::setEnabled);
 
         FrameLayout overlay = new FrameLayout(this);
         overlay.setId(R.id.mm_overlay);
@@ -91,8 +116,8 @@ public class ShellActivity extends AppCompatActivity implements Nav {
             Insets ime = insets.getInsets(WindowInsetsCompat.Type.ime());
             header.setPadding(header.getPaddingLeft(), bars.top + Ui.dp(this, 8),
                     header.getPaddingRight(), header.getPaddingBottom());
-            islandLp.bottomMargin = bars.bottom + Ui.dp(this, 16);
-            island.setLayoutParams(islandLp);
+            menuLp.bottomMargin = bars.bottom + Ui.dp(this, 16);
+            menu.setLayoutParams(menuLp);
             overlay.setPadding(bars.left, bars.top, bars.right, Math.max(bars.bottom, ime.bottom));
             return insets;
         });
@@ -100,11 +125,13 @@ public class ShellActivity extends AppCompatActivity implements Nav {
         pager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
-                island.select(position);
+                menu.select(position);
+                menu.frostSoon();
                 header.setSubtitle(SUBTITLES[position]);
             }
         });
-        island.select(pager.getCurrentItem());
+        if (savedInstanceState == null) pager.setCurrentItem(TAB_DASHBOARD, false);
+        menu.select(pager.getCurrentItem());
         header.setSubtitle(SUBTITLES[pager.getCurrentItem()]);
 
         store.listen(this, this::refreshUnread, Changes.Topic.ALERTS);
@@ -180,7 +207,7 @@ public class ShellActivity extends AppCompatActivity implements Nav {
 
         @Override
         public int getItemCount() {
-            return TABS.length;
+            return SUBTITLES.length;
         }
     }
 }
