@@ -4,13 +4,13 @@ Smartphone-based early detection of crop pests and diseases. Photograph one leaf
 phone tells you whether it looks healthy, names the likely disease or pest, rates how severe
 it is, and suggests treatments. Everything runs on the phone, offline.
 
-> **Status: early preview (v0.1.0).** This build shows the architecture working end to end.
+> **Status: early preview (v0.1.1).** This build shows the architecture working end to end.
 > No trained AI model is bundled yet: diagnosis uses a simple colour-based stand-in that can
 > only tell "healthy", "leaf spot" and "yellowing" apart. Do not rely on it for real crops.
 
 ## Try it
 
-Download `DevPlant-v0.1.0.apk` from the [Releases](../../releases) page and install it on an
+Download `DevPlant-v0.1.1.apk` from the [Releases](../../releases) page and install it on an
 Android 10+ phone (you may need to allow installing apps from your browser or file manager).
 
 ## Architecture
