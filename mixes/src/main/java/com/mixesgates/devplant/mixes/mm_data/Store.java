@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -13,6 +14,7 @@ import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
 
 import com.mixesgates.devplant.contracts.Changes;
+import com.mixesgates.devplant.contracts.Plant;
 import com.mixesgates.devplant.contracts.ScanOutcome;
 import com.mixesgates.devplant.contracts.ScanRequest;
 import com.mixesgates.devplant.contracts.Services;
@@ -60,6 +62,7 @@ public final class Store {
     private final Services services;
     private final ExecutorService io = Executors.newSingleThreadExecutor();
     private final ExecutorService scanner = Executors.newSingleThreadExecutor();
+    private final ExecutorService downloads = Executors.newFixedThreadPool(3);
     private final Handler main = new Handler(Looper.getMainLooper());
     public final PhotoCache photos = new PhotoCache();
 
@@ -71,6 +74,24 @@ public final class Store {
     /** Reads on a background thread; {@code done} runs on the main thread while the owner lives. */
     public <T> void load(LifecycleOwner owner, Work<T> work, Done<T> done) {
         submit(io, owner, work, done, this::showError);
+    }
+
+    /** Like {@link #load(LifecycleOwner, Work, Done)}, but the screen handles the failure itself. */
+    public <T> void load(LifecycleOwner owner, Work<T> work, Done<T> done, Done<Throwable> failed) {
+        submit(io, owner, work, done, failed);
+    }
+
+    /** Shows a catalogue plant's photo: downloaded the first time, read from the phone after that. */
+    public void plantPhoto(ImageView view, Plant plant, int sizePx) {
+        String tag = "plant:" + plant.key;
+        view.setTag(tag);
+        view.setImageDrawable(null);
+        downloads.execute(() -> {
+            String path = services.plants().photoFile(plant);
+            main.post(() -> {
+                if (path != null && tag.equals(view.getTag())) photos.load(view, path, sizePx);
+            });
+        });
     }
 
     /** Writes on a background thread; change events tell screens to refresh. */

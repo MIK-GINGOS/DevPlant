@@ -2,20 +2,24 @@ package com.mixesgates.devplant.wiring;
 
 import android.content.Context;
 
+import com.mixesgates.devplant.BuildConfig;
 import com.mixesgates.devplant.app_db.CatalogueLookup;
 import com.mixesgates.devplant.app_db.RoomAlertStore;
 import com.mixesgates.devplant.app_db.RoomCropStore;
 import com.mixesgates.devplant.app_db.RoomDiagnosisStore;
 import com.mixesgates.devplant.app_db.RoomScanStore;
+import com.mixesgates.devplant.app_http.CloudPlantCatalog;
 import com.mixesgates.devplant.app_rules.DiagnosisRules;
 import com.mixesgates.devplant.app_rules.LeafPictures;
 import com.mixesgates.devplant.contracts.AlertStore;
 import com.mixesgates.devplant.contracts.Changes;
 import com.mixesgates.devplant.contracts.CropStore;
 import com.mixesgates.devplant.contracts.DiagnosisStore;
+import com.mixesgates.devplant.contracts.PlantCatalog;
 import com.mixesgates.devplant.contracts.ScanStore;
 import com.mixesgates.devplant.contracts.Services;
 import com.mixesgates.devplant.gates.gm_db.DevPlantDatabase;
+import com.mixesgates.devplant.gates.gm_http.WebFiles;
 import com.mixesgates.devplant.gates.gm_images.LeafPhotos;
 import com.mixesgates.devplant.gates.gm_model.LeafModel;
 import com.mixesgates.devplant.gates.gm_model.TfliteModel;
@@ -29,6 +33,7 @@ public final class AppServices implements Services {
     private final DiagnosisStore diagnoses;
     private final CropStore crops;
     private final AlertStore alerts;
+    private final PlantCatalog plants;
     private LeafModel model;
 
     public AppServices(Context context) {
@@ -40,6 +45,8 @@ public final class AppServices implements Services {
         diagnoses = new RoomDiagnosisStore(db, this::model);
         crops = new RoomCropStore(db, changes);
         alerts = new RoomAlertStore(db, changes);
+        // The catalogue site is set in gradle.properties (devplant.catalogUrl).
+        plants = new CloudPlantCatalog(new WebFiles(this.context), BuildConfig.CATALOG_URL, changes);
     }
 
     /** Loaded on first use, off the main thread. */
@@ -69,6 +76,11 @@ public final class AppServices implements Services {
     @Override
     public AlertStore alerts() {
         return alerts;
+    }
+
+    @Override
+    public PlantCatalog plants() {
+        return plants;
     }
 
     @Override

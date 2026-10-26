@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DevPlant Catalogue</title>
+  <meta name="description" content="600 crops with photos, common problems and simple fixes, for the DevPlant app.">
+  <link rel="icon" href="mixes/logo.png">
+  <link rel="stylesheet" href="mixes/style.css">
+</head>
+<body>
+  <header class="top">
+    <img src="mixes/logo.png" alt="" class="logo">
+    <div>
+      <h1>DevPlant Catalogue</h1>
+      <p id="count" class="soft">Loading plants…</p>
+    </div>
+  </header>
+
+  <div class="controls">
+    <input id="q" type="search" placeholder="Search plants or problems, e.g. tomato, blight" autocomplete="off">
+    <div id="cats" class="chips" role="tablist" aria-label="Categories"></div>
+  </div>
+
+  <main id="grid" class="grid" aria-live="polite"></main>
+
+  <dialog id="detail">
+    <article id="detail-body"></article>
+  </dialog>
+
+  <footer class="soft">
+    Photos from Wikipedia and Wikimedia Commons; each card links to its source and licence.
+    Advice is general: check with a local extension officer and follow product labels.
+    · <a href="api/catalog">API</a>
+  </footer>
+
+  <script type="module" src="mixes/catalog.js"></script>
+</body>
+</html>

@@ -21,6 +21,8 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.mixesgates.devplant.contracts.Changes;
 import com.mixesgates.devplant.mixes.R;
 import com.mixesgates.devplant.mixes.mm_alerts.AlertsFragment;
+import com.mixesgates.devplant.mixes.mm_catalog.CatalogFragment;
+import com.mixesgates.devplant.mixes.mm_catalog.PlantFragment;
 import com.mixesgates.devplant.mixes.mm_dashboard.DashboardFragment;
 import com.mixesgates.devplant.mixes.mm_data.Store;
 import com.mixesgates.devplant.mixes.mm_fields.FieldsFragment;
@@ -38,7 +40,7 @@ import com.mixesgates.devplant.mixes.mm_theme.Ui;
 public class ShellActivity extends AppCompatActivity implements Nav {
 
     private static final String[] SUBTITLES = {"Scan a leaf", "Past scans", "My crops and fields",
-            "Pest & disease guide", "Field health"};
+            "Pest & disease guide", "Field health", "Plant catalogue"};
 
     private Header header;
     private ControlMenu menu;
@@ -76,7 +78,7 @@ public class ShellActivity extends AppCompatActivity implements Nav {
                 ControlMenu.Tile.action("Settings", R.drawable.mm_ic_cc_sliders, this::openSettings),
                 ControlMenu.Tile.page("Camera", R.drawable.mm_ic_cc_camera, TAB_SCAN, () -> showTab(TAB_SCAN)),
                 ControlMenu.Tile.planned("Add", R.drawable.mm_ic_cc_add),
-                ControlMenu.Tile.page("Catalog", R.drawable.mm_ic_cc_catalog, TAB_LIBRARY, () -> showTab(TAB_LIBRARY)),
+                ControlMenu.Tile.page("Catalog", R.drawable.mm_ic_cc_catalog, TAB_CATALOG, () -> showTab(TAB_CATALOG)),
                 ControlMenu.Tile.planned("Active Profile", R.drawable.mm_ic_cc_profile),
         });
         FrameLayout.LayoutParams menuLp = new FrameLayout.LayoutParams(
@@ -169,6 +171,11 @@ public class ShellActivity extends AppCompatActivity implements Nav {
     }
 
     @Override
+    public void openPlant(String key) {
+        open(PlantFragment.newInstance(key));
+    }
+
+    @Override
     public void openAlerts() {
         open(new AlertsFragment());
     }
@@ -201,6 +208,7 @@ public class ShellActivity extends AppCompatActivity implements Nav {
                 case TAB_FIELDS: return new FieldsFragment();
                 case TAB_LIBRARY: return new LibraryFragment();
                 case TAB_DASHBOARD: return new DashboardFragment();
+                case TAB_CATALOG: return new CatalogFragment();
                 default: return new ScanFragment();
             }
         }

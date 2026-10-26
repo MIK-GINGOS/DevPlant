@@ -58,9 +58,19 @@ line, matching the guide keys such as `late_blight`, `fall_armyworm`, or `health
 Room, 8 tables: Crop, Field, Scan, Diagnosis, Disease, Pest, Treatment, Alert. Seeded on first
 run with 6 crops, 13 diseases, 7 pests and their treatments.
 
+### Plant catalogue (`cloud/`)
+
+The Catalog page lists 600 plants with photos and 4 common problems each. They come from the
+`cloud/` folder, deployed on Vercel (see `cloud/README.md`). The app downloads the catalogue once,
+keeps it, and saves each photo the first time it is shown, so it then works offline. The site
+address is one line in `gradle.properties`: `devplant.catalogUrl`.
+
+`gates/gm_http` (`WebFiles`) is the only gate that goes online; `app_http/CloudPlantCatalog`
+implements the `PlantCatalog` contract with it; `mixes/mm_catalog` draws it.
+
 ### Planned
 
-`app_http` (sync, sending unsure scans to experts, regional outbreak alerts) · `app_security`
+`app_http` (sending unsure scans to experts, regional outbreak alerts) · `app_security`
 (sign-in) · `app_notify` (push alerts) · `gm_location` (GPS for fields).
 
 ## Build

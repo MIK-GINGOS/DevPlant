@@ -1,4 +1,5 @@
-// gates: the tools. Database, leaf photos, AI model. Runs fully offline, imports nothing of ours.
+// gates: the tools. Database, leaf photos, AI model, web downloads. Imports nothing of ours.
+// Only gm_http goes online (the plant catalogue); everything else runs fully offline.
 plugins {
     alias(libs.plugins.android.library)
 }

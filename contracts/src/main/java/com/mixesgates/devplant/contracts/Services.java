@@ -11,6 +11,8 @@ public interface Services {
 
     AlertStore alerts();
 
+    PlantCatalog plants();
+
     Changes changes();
 
     /** Implemented by the Application so screens can find the services. */

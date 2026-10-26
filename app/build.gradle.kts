@@ -27,6 +27,14 @@ android {
         versionName = "0.1.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // The plant catalogue site (cloud/ on Vercel). Set in gradle.properties.
+        val catalogUrl = providers.gradleProperty("devplant.catalogUrl").get().trimEnd('/')
+        buildConfigField("String", "CATALOG_URL", "\"$catalogUrl\"")
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 
     signingConfigs {

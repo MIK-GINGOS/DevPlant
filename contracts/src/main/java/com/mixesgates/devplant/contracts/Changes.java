@@ -3,7 +3,7 @@ package com.mixesgates.devplant.contracts;
 /** Tells screens that stored data changed so they can refresh. */
 public interface Changes {
 
-    enum Topic { SCANS, CROPS, ALERTS }
+    enum Topic { SCANS, CROPS, ALERTS, CATALOG }
 
     interface Listener {
         /** May be called on any thread. */

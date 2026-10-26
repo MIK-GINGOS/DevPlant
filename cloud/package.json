@@ -1,0 +1,15 @@
+{
+  "name": "devplant-cloud",
+  "version": "0.1.0",
+  "private": true,
+  "description": "DevPlant catalogue engine for Vercel: 600 plants, their photos and common problems.",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "check": "node scripts/check.mjs",
+    "import": "node scripts/import-catalog.mjs"
+  }
+}

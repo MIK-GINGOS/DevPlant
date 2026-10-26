@@ -10,12 +10,16 @@ public interface Nav {
     int TAB_FIELDS = 2;
     int TAB_LIBRARY = 3;
     int TAB_DASHBOARD = 4;
+    int TAB_CATALOG = 5;
 
     void showTab(int tab);
 
     void openResult(long scanId);
 
     void openGuide(String key);
+
+    /** One plant from the plant catalogue. */
+    void openPlant(String key);
 
     void openAlerts();
 
