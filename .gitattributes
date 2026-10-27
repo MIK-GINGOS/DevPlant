@@ -4,3 +4,5 @@ gradlew text eol=lf
 *.jar binary
 *.pptx binary
 *.webp binary
+# The mobile app's macOS/Linux launcher needs LF.
+*.command text eol=lf

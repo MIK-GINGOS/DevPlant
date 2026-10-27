@@ -13,6 +13,10 @@ it is, and suggests treatments. Everything runs on the phone, offline.
 Download `DevPlant-v0.1.1.apk` from the [Releases](../../releases) page and install it on an
 Android 10+ phone (you may need to allow installing apps from your browser or file manager).
 
+**iPhone:** the `mobile/` folder is the same app in JavaScript (Expo). Install **Expo Go** on the
+iPhone, double-click `mobile/START-WINDOWS.bat` or `mobile/START-MAC.command` on a computer, and
+scan the QR code. See [`mobile/README.md`](mobile/README.md).
+
 ## Architecture
 
 Four Gradle modules, with import rules enforced by the build:
