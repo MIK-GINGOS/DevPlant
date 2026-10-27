@@ -1,0 +1,56 @@
+DevPlant for iPhone - how to start it
+=====================================
+
+You need: a Windows PC or a Mac with internet, and the iPhone.
+You do NOT need to install anything by hand. The start file installs Node.js and Expo for you.
+
+
+STEP 1 - On the iPhone
+  Open the App Store, search for "Expo Go" and install it.
+
+STEP 2 - On the computer: unzip
+  Windows: right-click the zip file > "Extract All..." > Extract.
+  Mac:     double-click the zip file.
+  (Do not run anything from inside the zip, it will not work.)
+
+STEP 3 - On the computer: start
+  Open the extracted DevPlant-iPhone folder.
+
+  Windows: double-click START-WINDOWS.bat
+    - If a blue box says "Windows protected your PC": click "More info", then "Run anyway".
+    - If Windows asks to allow Node.js on the network: click "Allow".
+    - If it asks "Do you want to allow this app to make changes": click "Yes"
+      (that is the Node.js installer, first time only).
+
+  Mac: double-click START-MAC.command
+    - If macOS says it cannot be opened: right-click it > Open > Open.
+    - It may ask for your Mac password to install Node.js (first time only).
+
+  The first time, it downloads everything it needs. This takes about 5 minutes.
+  Later starts take a few seconds.
+
+STEP 4 - Answer one question
+  It asks if the iPhone is on the SAME Wi-Fi as the computer.
+    Press Y if yes.
+    Press N if not sure, or if Y does not work. (N works on any network.)
+
+STEP 5 - Scan
+  A big QR code appears in the window.
+  Open the iPhone Camera, point it at the QR code, and tap the "Open in Expo Go" banner.
+  DevPlant opens. Done!
+
+  Keep the window on the computer open while you use the app.
+  Closing it stops the app.
+
+
+If something goes wrong
+-----------------------
+  * The app keeps loading forever:
+      close the window, start again, and press N at the question.
+  * "Project is incompatible with this version of Expo Go":
+      update Expo Go in the App Store.
+  * The camera inside the app is black:
+      iPhone Settings > Expo Go > turn on Camera.
+  * "Node.js could not be installed":
+      go to https://nodejs.org, click the big LTS button, install it,
+      then double-click the start file again.

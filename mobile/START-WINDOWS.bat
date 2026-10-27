@@ -12,6 +12,14 @@ echo    DevPlant  -  start the app for your iPhone
 echo  ==============================================
 echo.
 
+rem Opened straight from inside the zip, Windows copies only this file out, without the app.
+if exist package.json goto unzipped
+echo  Unzip first: right-click the downloaded zip, choose "Extract All...",
+echo  then open the extracted folder and double-click START-WINDOWS.bat there.
+pause
+exit /b 1
+:unzipped
+
 rem ---- 1. Node.js (or Bun) ----
 where node >nul 2>nul
 if %errorlevel%==0 goto have_node
