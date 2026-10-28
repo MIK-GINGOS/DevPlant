@@ -14,11 +14,18 @@ createServer(async (req, res) => {
     // same rewrite as vercel.json
     const one = url.pathname.match(/^\/api\/plants\/([^/]+)$/);
     if (one) { url.pathname = '/api/plants'; url.searchParams.set('key', one[1]); }
+    const byId = url.pathname.match(/^\/api\/(reports|questions)\/([^/]+)$/);
+    if (byId) { url.pathname = `/api/${byId[1]}`; url.searchParams.set('id', byId[2]); }
 
     if (url.pathname.startsWith('/api/')) {
       const file = join(root, 'api', url.pathname.slice(5) + '.js');
       const mod = await import(pathToFileURL(file).href);
-      const response = await mod.GET(new Request(url, { headers: req.headers }));
+      const handler = mod[req.method];
+      if (!handler) { res.writeHead(405); res.end(); return; }
+      const chunks = [];
+      for await (const c of req) chunks.push(c);
+      const body = ['GET', 'HEAD'].includes(req.method) ? undefined : Buffer.concat(chunks);
+      const response = await handler(new Request(url, { method: req.method, headers: req.headers, body }));
       res.writeHead(response.status, Object.fromEntries(response.headers));
       res.end(Buffer.from(await response.arrayBuffer()));
       return;

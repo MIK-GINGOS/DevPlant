@@ -10,7 +10,7 @@ import { loadThemeMode, useColors } from '@/mixes/theme';
 SplashScreen.preventAutoHideAsync();
 loadThemeMode();
 
-/** The shell underneath; diagnosis, guide entries, plants, alerts, search and settings open on top. */
+/** The shell underneath; diagnosis, guide entries, plants, alerts, search, settings, reports, welcome and help open on top. */
 export default function RootLayout() {
   const scheme = useColorScheme();
   const c = useColors();
@@ -37,6 +37,9 @@ export default function RootLayout() {
         <Stack.Screen name="alerts" options={{ title: 'Alerts' }} />
         <Stack.Screen name="search" options={{ title: 'Search' }} />
         <Stack.Screen name="settings" options={{ title: 'Settings' }} />
+        <Stack.Screen name="reports" options={{ title: 'My reports' }} />
+        <Stack.Screen name="welcome" options={{ title: 'Welcome' }} />
+        <Stack.Screen name="help" options={{ title: 'Ask an officer' }} />
         <Stack.Screen name="add-field" options={{ title: 'Add a field', presentation: 'formSheet', sheetAllowedDetents: [0.75, 1], sheetGrabberVisible: true }} />
       </Stack>
     </ThemeProvider>

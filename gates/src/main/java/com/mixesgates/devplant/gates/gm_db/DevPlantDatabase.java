@@ -33,13 +33,14 @@ public abstract class DevPlantDatabase extends RoomDatabase {
                 .build();
     }
 
-    /** Fills the catalogue if it is empty. Blocks; call off the main thread. */
+    /** Fills the catalogue if it is empty, or adds entries new in this version. Blocks; call off the main thread. */
     public void ensureSeeded() {
         if (seeded) return;
         synchronized (this) {
             if (seeded) return;
             runInTransaction(() -> {
                 if (catalogue().diseaseCount() == 0) Catalogue.seed(this);
+                else Catalogue.addMissing(this);
             });
             seeded = true;
         }

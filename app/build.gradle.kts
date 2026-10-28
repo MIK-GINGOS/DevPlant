@@ -31,6 +31,9 @@ android {
         // The plant catalogue site (cloud/ on Vercel). Set in gradle.properties.
         val catalogUrl = providers.gradleProperty("devplant.catalogUrl").get().trimEnd('/')
         buildConfigField("String", "CATALOG_URL", "\"$catalogUrl\"")
+        // The same files from GitHub through jsDelivr, for networks that can't reach Vercel.
+        val catalogMirror = providers.gradleProperty("devplant.catalogMirror").get().trimEnd('/')
+        buildConfigField("String", "CATALOG_MIRROR", "\"$catalogMirror\"")
     }
 
     buildFeatures {

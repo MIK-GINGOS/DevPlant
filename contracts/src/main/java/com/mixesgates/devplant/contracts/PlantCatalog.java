@@ -23,6 +23,9 @@ public interface PlantCatalog {
     /** A file on the phone holding the plant's photo, downloaded on first use. Null if unavailable. */
     String photoFile(Plant plant);
 
+    /** The photo file if it is already on the phone, else null. Never uses the network. */
+    String savedPhotoFile(Plant plant);
+
     /** Where the catalogue comes from, e.g. "https://devplant.vercel.app". */
     String source();
 }

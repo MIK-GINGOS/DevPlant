@@ -2,7 +2,9 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "outputDirectory": "public",
   "rewrites": [
-    { "source": "/api/plants/:key", "destination": "/api/plants?key=:key" }
+    { "source": "/api/plants/:key", "destination": "/api/plants?key=:key" },
+    { "source": "/api/reports/:id", "destination": "/api/reports?id=:id" },
+    { "source": "/api/questions/:id", "destination": "/api/questions?id=:id" }
   ],
   "functions": {
     "api/**/*.js": { "includeFiles": "{app,contracts,gates}/**" }

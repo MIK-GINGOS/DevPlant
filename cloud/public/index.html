@@ -5,33 +5,113 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>DevPlant Catalogue</title>
   <meta name="description" content="600 crops with photos, common problems and simple fixes, for the DevPlant app.">
+  <meta name="theme-color" content="#F6F7F2" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0F1611" media="(prefers-color-scheme: dark)">
   <link rel="icon" href="mixes/logo.png">
+  <link rel="apple-touch-icon" href="mixes/logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500&family=Inter:wght@400;500;600;700&display=swap">
   <link rel="stylesheet" href="mixes/style.css">
 </head>
 <body>
-  <header class="top">
-    <img src="mixes/logo.png" alt="" class="logo">
-    <div>
-      <h1>DevPlant Catalogue</h1>
-      <p id="count" class="soft">Loading plants…</p>
+  <header class="bar">
+    <div class="wrap bar-in">
+      <a href="./" class="brand" data-home aria-label="DevPlant home">
+        <img src="mixes/logo.png" alt="" width="40" height="40">
+        <span>DevPlant</span>
+      </a>
+      <nav class="nav" aria-label="Sections">
+        <a href="./#explore" data-home>Explore crops</a>
+        <a href="./#guide" data-home>How it works</a>
+        <a href="./#app" data-home>Get the app</a>
+      </nav>
+      <a class="btn ghost small" href="./#explore" data-home data-focus-search>Search <span aria-hidden="true">→</span></a>
     </div>
   </header>
 
-  <div class="controls">
-    <input id="q" type="search" placeholder="Search plants or problems, e.g. tomato, blight" autocomplete="off">
-    <div id="cats" class="chips" role="tablist" aria-label="Categories"></div>
-  </div>
+  <main>
+    <div id="detail" class="wrap detail" hidden></div>
+    <div id="home">
+    <section class="wrap hero" id="top">
+      <div>
+        <p class="eyebrow"><span class="dot" aria-hidden="true"></span> A living crop guide</p>
+        <h1 class="display">Understand what your crops are telling you.</h1>
+        <p class="lead">A searchable library of the crops farmers grow, with photos, the problems each one faces, and what to do about them, in plain words.</p>
+        <div class="actions">
+          <a href="#explore" class="btn">Explore the library <span aria-hidden="true">→</span></a>
+          <a href="#guide" class="btn ghost">How it works</a>
+        </div>
+        <p class="stats" id="stats"><span>Loading the catalogue…</span></p>
+      </div>
+      <div class="hero-art">
+        <div class="glow" aria-hidden="true"></div>
+        <button class="hero-card" id="hero-card" type="button">
+          <img id="hero-img" src="images/tomato.jpg" alt="Tomato plant" width="600" height="499">
+          <span class="hero-note">
+            <span class="eyebrow">Start with a symptom</span>
+            <span class="serif">“Why are my leaves turning yellow?”</span>
+          </span>
+        </button>
+      </div>
+    </section>
 
-  <main id="grid" class="grid" aria-live="polite"></main>
+    <section class="library" id="explore">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">The library</p>
+            <h2 class="title">Find your crop’s next step.</h2>
+          </div>
+          <p class="soft narrow">Search by crop, scientific name or problem, or pick a category.</p>
+        </div>
+        <div class="finder">
+          <label class="search">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            <span class="sr-only">Search crops and problems</span>
+            <input id="q" type="search" placeholder="Search a crop or problem" autocomplete="off">
+          </label>
+          <div id="cats" class="cats" role="group" aria-label="Categories"></div>
+        </div>
+        <p class="soft result-count" id="result-count"></p>
+        <div id="grid" class="grid"></div>
+        <button id="more" class="btn ghost more" type="button" hidden>Show more crops <span aria-hidden="true">↓</span></button>
+      </div>
+    </section>
 
-  <dialog id="detail">
-    <article id="detail-body"></article>
-  </dialog>
+    <section class="wrap guide" id="guide">
+      <div>
+        <p class="eyebrow">Good to know</p>
+        <h2 class="title">Care that makes sense.</h2>
+      </div>
+      <div class="steps">
+        <div class="step leaf"><span class="num">01</span><h3>Find your crop</h3><p>Search by name, or browse one of the categories.</p></div>
+        <div class="step clay"><span class="num">02</span><h3>Read the signs</h3><p>Each crop lists the four problems farmers see most, with what they look like.</p></div>
+        <div class="step sky"><span class="num">03</span><h3>Take one step</h3><p>Start with the simplest fix, and check with a local extension officer.</p></div>
+      </div>
+    </section>
 
-  <footer class="soft">
-    Photos from Wikipedia and Wikimedia Commons; each card links to its source and licence.
-    Advice is general: check with a local extension officer and follow product labels.
-    · <a href="api/catalog">API</a>
+    <section class="wrap get-app" id="app">
+      <div>
+        <p class="eyebrow light">The DevPlant app</p>
+        <h2 class="title">Scan a leaf, right in the field.</h2>
+        <p>The app carries this whole catalogue offline, diagnoses leaf photos and keeps a history of each field.</p>
+      </div>
+      <div class="app-links">
+        <a class="btn light" href="https://github.com/MIK-GINGOS/DevPlant/releases/tag/v0.1.1">Android app <span aria-hidden="true">→</span></a>
+        <a class="btn outline-light" href="https://github.com/MIK-GINGOS/DevPlant/releases/tag/v0.1.2">iPhone preview <span aria-hidden="true">→</span></a>
+      </div>
+    </section>
+    </div>
+  </main>
+
+  <footer class="foot">
+    <div class="wrap foot-in">
+      <a href="./" class="brand" data-home><img src="mixes/logo.png" alt="" width="28" height="28"><span>DevPlant</span></a>
+      <p>Photos from Wikipedia and Wikimedia Commons; each plant page credits its source and licence.
+        Advice is general: check with a local extension officer and follow product labels.</p>
+      <p><a href="api/catalog">API</a> · <a href="https://github.com/MIK-GINGOS/DevPlant">GitHub</a></p>
+    </div>
   </footer>
 
   <script type="module" src="mixes/catalog.js"></script>

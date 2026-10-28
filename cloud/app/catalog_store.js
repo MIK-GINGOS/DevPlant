@@ -23,6 +23,7 @@ export function catalogStore(baseUrl) {
     image_source: p.image_source,
     image_license: p.image_license,
     image_author: p.image_author,
+    wikipedia: p.wikipedia || '',
     problems: p.diseases.map(k => {
       const d = problems.get(k);
       return { key: k, name: d.name, signs: d.signs, treatment: d.treatment };

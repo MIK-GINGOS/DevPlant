@@ -29,6 +29,9 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The screens' only way to the data. Runs contract calls off the main thread and hands results
@@ -62,7 +65,15 @@ public final class Store {
     private final Services services;
     private final ExecutorService io = Executors.newSingleThreadExecutor();
     private final ExecutorService scanner = Executors.newSingleThreadExecutor();
-    private final ExecutorService downloads = Executors.newFixedThreadPool(3);
+    // Newest request first: after a fast scroll, the photos now on screen download before the
+    // ones that scrolled past (which are skipped anyway once their card shows another plant).
+    private final ExecutorService downloads = new ThreadPoolExecutor(3, 3, 0, TimeUnit.MILLISECONDS,
+            new LinkedBlockingDeque<Runnable>() {
+                @Override
+                public boolean offer(Runnable r) {
+                    return offerFirst(r);
+                }
+            });
     private final Handler main = new Handler(Looper.getMainLooper());
     public final PhotoCache photos = new PhotoCache();
 
@@ -83,10 +94,17 @@ public final class Store {
 
     /** Shows a catalogue plant's photo: downloaded the first time, read from the phone after that. */
     public void plantPhoto(ImageView view, Plant plant, int sizePx) {
+        // Already on the phone: straight to the decoder (or the memory cache), no download queue.
+        String saved = services.plants().savedPhotoFile(plant);
+        if (saved != null) {
+            photos.load(view, saved, sizePx);
+            return;
+        }
         String tag = "plant:" + plant.key;
         view.setTag(tag);
         view.setImageDrawable(null);
         downloads.execute(() -> {
+            if (!tag.equals(view.getTag())) return; // the card scrolled away and shows another plant
             String path = services.plants().photoFile(plant);
             main.post(() -> {
                 if (path != null && tag.equals(view.getTag())) photos.load(view, path, sizePx);

@@ -4,7 +4,8 @@ import { router } from 'expo-router';
 import { useRef, useState } from 'react';
 import { ActivityIndicator, Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { scanLeaf, useFields } from '@/bridge/store';
+import { scanLeaf } from '@/bridge/reports';
+import { useFields } from '@/bridge/store';
 import { useColors } from '@/mixes/theme';
 import { Button, Card, Chip, ChipRow, ISLAND_CLEARANCE, Txt } from '@/mixes/ui';
 

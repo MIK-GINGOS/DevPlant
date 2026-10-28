@@ -4,5 +4,5 @@ import { catalogStore } from '../app/catalog_store.js';
 import { baseUrl, json } from '../app/http.js';
 
 export function GET(request) {
-  return json(catalogStore(baseUrl(request)).all());
+  return json(catalogStore(baseUrl(request)).all(), 200, request);
 }

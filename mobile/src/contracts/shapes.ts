@@ -103,6 +103,8 @@ export interface Plant {
   scientificName: string;
   category: string;
   imageUrl: string;
+  /** The same photo from the mirror, used when imageUrl can't be reached. */
+  imageFallback: string;
   /** Licence and author, e.g. "CC BY-SA 3.0, Softeis". */
   imageCredit: string;
   imageSource: string;

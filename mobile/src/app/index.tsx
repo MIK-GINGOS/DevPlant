@@ -4,6 +4,7 @@ import { View } from 'react-native';
 import PagerView from 'react-native-pager-view';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useConsent, useReportsLoaded } from '@/bridge/reports';
 import { actionTile, ControlMenu, pageTile, plannedTile, Toast } from '@/mixes/controlMenu';
 import { AppHeader } from '@/mixes/header';
 import {
@@ -26,6 +27,15 @@ export default function Shell() {
   const [focused, setFocused] = useState(true);
   const [toast, setToast] = useState<string | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // First launch: the welcome screen asks about sharing before anything else.
+  const consent = useConsent();
+  const reportsLoaded = useReportsLoaded();
+  useEffect(() => {
+    if (reportsLoaded && !consent.decided) router.push('/welcome');
+    // Only when the saved choice has been read, not each time it changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reportsLoaded]);
 
   // Other screens and the menu tiles switch pages through nav.showTab.
   useEffect(() => {
@@ -83,7 +93,7 @@ export default function Shell() {
         gridTiles={[
           actionTile('Alerts', require('@/assets/icons/cc_bell_line.png'), () => router.push('/alerts')),
           plannedTile('Location', require('@/assets/icons/cc_location.png')),
-          plannedTile('Share', require('@/assets/icons/cc_share.png')),
+          actionTile('Reports', require('@/assets/icons/cc_share.png'), () => router.push('/reports')),
           actionTile('Settings', require('@/assets/icons/cc_sliders.png'), () => router.push('/settings')),
           pageTile('Camera', require('@/assets/icons/cc_camera.png'), TAB_SCAN, () => showTab(TAB_SCAN)),
           plannedTile('Add', require('@/assets/icons/cc_add.png')),

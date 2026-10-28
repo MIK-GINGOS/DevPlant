@@ -20,23 +20,36 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
  * The plant catalogue from the DevPlant cloud (the cloud/ folder, hosted on Vercel).
  * The first open downloads /api/catalog and keeps it; later opens use the saved copy at once and
- * look for a newer one in the background. Photos are downloaded the first time they are shown.
+ * ask the server in the background whether it has a newer one (by ETag, so an unchanged catalogue
+ * is not downloaded again). Each photo is downloaded once, the first time it is shown, and read
+ * from the phone after that.
+ *
+ * <p>Some networks can't reach Vercel. Then the catalogue and photos come from the mirror (the same
+ * cloud/ folder in the public GitHub repo, through jsDelivr), and for a while photos go to the
+ * mirror first instead of waiting for Vercel to time out on every one.
  */
 public final class CloudPlantCatalog implements PlantCatalog {
 
     private static final String TAG = "CloudPlantCatalog";
     private static final String SAVED = "catalog.json";
     private static final String INCOMING = "catalog.next.json";
+    /** Where the saved catalogue came from and its ETag, one per line. */
+    private static final String VERSION = "catalog.version";
+    private static final long CLOUD_DOWN_MS = 10 * 60_000;
 
     private final WebFiles files;
     private final String baseUrl;
+    private final String mirrorUrl;
     private final Changes changes;
+    private final Map<String, Object> photoLocks = new ConcurrentHashMap<>();
+    private volatile long cloudDownUntil;
     private final ExecutorService refresher = Executors.newSingleThreadExecutor();
     private Loaded loaded;
     private boolean refreshed;
@@ -56,10 +69,15 @@ public final class CloudPlantCatalog implements PlantCatalog {
         }
     }
 
-    public CloudPlantCatalog(WebFiles files, String baseUrl, Changes changes) {
+    public CloudPlantCatalog(WebFiles files, String baseUrl, String mirrorUrl, Changes changes) {
         this.files = files;
-        this.baseUrl = baseUrl.endsWith("/") ? baseUrl.substring(0, baseUrl.length() - 1) : baseUrl;
+        this.baseUrl = trim(baseUrl);
+        this.mirrorUrl = trim(mirrorUrl);
         this.changes = changes;
+    }
+
+    private static String trim(String url) {
+        return url.endsWith("/") ? url.substring(0, url.length() - 1) : url;
     }
 
     @Override
@@ -101,13 +119,47 @@ public final class CloudPlantCatalog implements PlantCatalog {
     }
 
     @Override
+    public String savedPhotoFile(Plant plant) {
+        File f = files.saved(photoName(plant));
+        return f == null ? null : f.getPath();
+    }
+
+    @Override
     public String photoFile(Plant plant) {
-        try {
-            return files.cached(plant.imageUrl, "images/" + plant.key + ".jpg").getPath();
-        } catch (IOException e) {
-            Log.w(TAG, "photo unavailable: " + plant.key + " (" + e.getMessage() + ")");
-            return null;
+        String name = photoName(plant);
+        File saved = files.saved(name);
+        if (saved != null) return saved.getPath();
+        // One download per photo, even when two screens ask for it at once.
+        Object lock = photoLocks.computeIfAbsent(name, k -> new Object());
+        synchronized (lock) {
+            saved = files.saved(name);
+            if (saved != null) return saved.getPath();
+            String tail = photoPath(plant);
+            String cloud = baseUrl + tail;
+            String mirror = mirrorUrl + "/public" + tail;
+            boolean cloudFirst = System.currentTimeMillis() >= cloudDownUntil;
+            try {
+                return files.download(cloudFirst ? cloud : mirror, name).getPath();
+            } catch (IOException first) {
+                if (cloudFirst) cloudDownUntil = System.currentTimeMillis() + CLOUD_DOWN_MS;
+                try {
+                    return files.download(cloudFirst ? mirror : cloud, name).getPath();
+                } catch (IOException second) {
+                    Log.w(TAG, "photo unavailable: " + plant.key + " (" + second.getMessage() + ")");
+                    return null;
+                }
+            }
         }
+    }
+
+    private static String photoName(Plant plant) {
+        return "images/" + plant.key + ".jpg";
+    }
+
+    /** "/images/tomato.jpg": the photo's path under the site root, the same on Vercel and the mirror. */
+    private static String photoPath(Plant plant) {
+        int at = plant.imageUrl.lastIndexOf("/images/");
+        return at >= 0 ? plant.imageUrl.substring(at) : "/images/" + plant.key + ".jpg";
     }
 
     @Override
@@ -127,7 +179,7 @@ public final class CloudPlantCatalog implements PlantCatalog {
             }
         }
         if (loaded == null) {
-            loaded = fetch();
+            loaded = fetch(true);
             refreshed = true;
         } else if (!refreshed) {
             refreshed = true;
@@ -139,7 +191,8 @@ public final class CloudPlantCatalog implements PlantCatalog {
     /** Looks for a newer catalogue; with no signal the saved one simply stays. */
     private void refresh() {
         try {
-            Loaded fresh = fetch();
+            Loaded fresh = fetch(false);
+            if (fresh == null) return; // the server still has the saved version
             boolean changed;
             synchronized (this) {
                 changed = loaded == null || !fresh.json.equals(loaded.json);
@@ -151,43 +204,89 @@ public final class CloudPlantCatalog implements PlantCatalog {
         }
     }
 
-    /** Downloads and checks the catalogue, and only then replaces the saved copy. */
-    private Loaded fetch() throws IOException, JSONException {
-        files.download(baseUrl + "/api/catalog", INCOMING);
-        String json = files.read(INCOMING);
-        Loaded fresh = parse(json);
+    /**
+     * Downloads and checks the catalogue, and only then replaces the saved copy. Tries the cloud,
+     * then the mirror. Returns null if the source still has the saved version, unless {@code must}.
+     */
+    private Loaded fetch(boolean must) throws IOException, JSONException {
+        try {
+            return fetchFrom(baseUrl + "/api/catalog", must);
+        } catch (IOException e) {
+            Log.i(TAG, "cloud unreachable, trying the mirror: " + e.getMessage());
+            cloudDownUntil = System.currentTimeMillis() + CLOUD_DOWN_MS;
+            return fetchFrom(mirrorUrl + "/gates/gm_data/catalog.json", must);
+        }
+    }
+
+    private Loaded fetchFrom(String url, boolean must) throws IOException, JSONException {
+        String version = must ? null : files.read(VERSION);
+        String etag = null;
+        if (version != null) {
+            String[] lines = version.split("\n", 2);
+            if (lines.length == 2 && lines[0].equals(url) && !lines[1].isEmpty()) etag = lines[1];
+        }
+        String newTag = files.downloadIfChanged(url, INCOMING, etag);
+        if (newTag == null) return null;
+        Loaded fresh = parse(files.read(INCOMING));
         File target = files.file(SAVED);
         //noinspection ResultOfMethodCallIgnored
         target.delete();
         if (!files.file(INCOMING).renameTo(target)) throw new IOException("Cannot save the catalogue");
+        files.write(VERSION, url + "\n" + newTag);
         return fresh;
     }
 
+    /**
+     * Reads either shape: the API's (categories, and plants with their problems) or the data file
+     * from the mirror (diseases listed once, plants naming theirs by key).
+     */
     private Loaded parse(String json) throws JSONException {
         JSONObject root = new JSONObject(json);
+        Map<String, JSONObject> diseases = null;
+        if (root.has("diseases")) {
+            diseases = new HashMap<>();
+            JSONArray all = root.getJSONArray("diseases");
+            for (int i = 0; i < all.length(); i++) {
+                JSONObject d = all.getJSONObject(i);
+                diseases.put(d.getString("key"), d);
+            }
+        }
         List<String> categories = new ArrayList<>();
-        JSONArray cats = root.getJSONArray("categories");
-        for (int i = 0; i < cats.length(); i++) categories.add(cats.getString(i));
+        JSONArray cats = root.optJSONArray("categories");
+        if (cats != null) for (int i = 0; i < cats.length(); i++) categories.add(cats.getString(i));
 
         List<Plant> plants = new ArrayList<>();
         JSONArray rows = root.getJSONArray("plants");
         for (int i = 0; i < rows.length(); i++) {
             JSONObject p = rows.getJSONObject(i);
             List<PlantProblem> problems = new ArrayList<>();
-            JSONArray probs = p.getJSONArray("problems");
-            for (int j = 0; j < probs.length(); j++) {
-                JSONObject x = probs.getJSONObject(j);
-                problems.add(new PlantProblem(x.getString("key"), x.getString("name"),
-                        x.getString("signs"), x.getString("treatment")));
+            if (diseases == null) {
+                JSONArray probs = p.getJSONArray("problems");
+                for (int j = 0; j < probs.length(); j++) problems.add(problem(probs.getJSONObject(j)));
+            } else {
+                JSONArray keys = p.getJSONArray("diseases");
+                for (int j = 0; j < keys.length(); j++) {
+                    JSONObject d = diseases.get(keys.getString(j));
+                    if (d != null) problems.add(problem(d));
+                }
             }
+            String category = p.optString("category", "");
+            if (cats == null && !categories.contains(category)) categories.add(category);
             String imageUrl = p.optString("image_url", "");
-            if (imageUrl.isEmpty()) imageUrl = baseUrl + "/" + p.getString("image");
+            if (imageUrl.isEmpty()) {
+                imageUrl = (diseases == null ? baseUrl : mirrorUrl + "/public") + "/" + p.getString("image");
+            }
             String author = p.optString("image_author", "");
             String credit = p.optString("image_license", "") + (author.isEmpty() ? "" : ", " + author);
             plants.add(new Plant(p.getString("key"), p.getString("name"),
-                    p.optString("scientific_name", ""), p.optString("category", ""), imageUrl,
+                    p.optString("scientific_name", ""), category, imageUrl,
                     credit, p.optString("image_source", ""), problems));
         }
         return new Loaded(json, plants, categories);
+    }
+
+    private static PlantProblem problem(JSONObject x) throws JSONException {
+        return new PlantProblem(x.getString("key"), x.getString("name"),
+                x.getString("signs"), x.getString("treatment"));
     }
 }

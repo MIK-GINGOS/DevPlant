@@ -16,11 +16,14 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.mixesgates.devplant.contracts.Diagnosis;
 import com.mixesgates.devplant.contracts.GuideEntry;
 import com.mixesgates.devplant.contracts.Kind;
+import com.mixesgates.devplant.contracts.Report;
 import com.mixesgates.devplant.contracts.Scan;
 import com.mixesgates.devplant.contracts.Treatment;
 import com.mixesgates.devplant.mixes.R;
 import com.mixesgates.devplant.mixes.mm_data.Store;
 import com.mixesgates.devplant.mixes.mm_library.GuideViews;
+import com.mixesgates.devplant.mixes.mm_help.HelpFragment;
+import com.mixesgates.devplant.mixes.mm_reports.Reports;
 import com.mixesgates.devplant.mixes.mm_shell.Nav;
 import com.mixesgates.devplant.mixes.mm_theme.Ui;
 
@@ -44,6 +47,7 @@ public class ResultFragment extends Fragment {
         Scan scan;
         List<Treatment> treatments = Collections.emptyList();
         GuideEntry entry;
+        Report report;
     }
 
     private LinearLayout body;
@@ -64,6 +68,7 @@ public class ResultFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         long scanId = requireArguments().getLong(ARG_SCAN);
+        Context app = requireContext().getApplicationContext();
         Store.of(requireContext()).load(getViewLifecycleOwner(), s -> {
             Data d = new Data();
             d.scan = s.scans().get(scanId);
@@ -71,6 +76,7 @@ public class ResultFragment extends Fragment {
                 d.treatments = s.diagnoses().treatmentsFor(d.scan.diagnosis.key);
                 d.entry = s.diagnoses().guideEntry(d.scan.diagnosis.key);
             }
+            d.report = Reports.of(app).forScan(scanId);
             return d;
         }, this::render);
     }
@@ -105,9 +111,32 @@ public class ResultFragment extends Fragment {
             pills.addView(Ui.pill(c, Ui.severityLabel(d.severity), Ui.severityColor(d.severity)));
         }
         pills.addView(Ui.pill(c, Ui.percent(d.confidence) + " sure", R.color.mm_unsure));
+        if (data.report != null) pills.addView(Ui.pill(c, Reports.sourceLabel(data.report.source), R.color.mm_unsure));
         body.addView(Ui.gap(pills, 8));
         String where = (scan.fieldName == null ? "No field" : scan.fieldName) + " · " + Ui.dateTime(scan.takenAt);
         body.addView(Ui.gap(Ui.text(c, where, Ui.Type.CAPTION), 8));
+
+        // CropGuard: say plainly that this is not a confirmed diagnosis, and where it came from.
+        boolean checked = data.report != null && data.report.source == Report.Source.EXPERT;
+        if (!checked) {
+            LinearLayout notice = Ui.card(c);
+            notice.addView(Ui.text(c, "First assessment, not a confirmed diagnosis", Ui.Type.LABEL));
+            String source = data.report == null ? "" : Reports.sourceSentence(data.report.source) + " ";
+            notice.addView(Ui.gap(Ui.text(c, source + "Check several plants, and ask your extension officer "
+                    + "if you are unsure.", Ui.Type.BODY), 4));
+            View ask = Ui.gap(Ui.button(c, "Ask an officer", false), 10);
+            long reportId = data.report == null ? 0 : data.report.id;
+            ask.setOnClickListener(v -> Reports.open(this, HelpFragment.newInstance(reportId)));
+            notice.addView(ask);
+            body.addView(notice);
+        }
+        if (data.report != null && data.report.officerNote != null) {
+            LinearLayout officer = Ui.card(c);
+            officer.addView(Ui.text(c, "From your extension officer · "
+                    + Reports.verificationLabel(data.report.verification), Ui.Type.LABEL));
+            officer.addView(Ui.gap(Ui.text(c, data.report.officerNote, Ui.Type.BODY), 4));
+            body.addView(officer);
+        }
 
         LinearLayout advice = Ui.card(c);
         advice.setBackground(Ui.rounded(Ui.color(c, R.color.mm_leaf_soft), Ui.dp(c, 18)));

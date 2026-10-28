@@ -1,7 +1,9 @@
 package com.mixesgates.devplant.gates.gm_db;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Starter catalogue of crops, diseases, pests and treatments common in smallholder farming.
@@ -42,6 +44,9 @@ final class Catalogue {
             {"maize_lethal_necrosis", "Maize lethal necrosis", "MCMV with a potyvirus such as SCMV", "Maize",
                     "Yellow mottling from the leaf base, then drying from the edges inwards; plants may die before tasselling.",
                     "Viruses spread by thrips, aphids and beetles, and through seed and infected residue."},
+            {"maize_streak_virus", "Maize streak virus", "Maize streak virus (Mastrevirus)", "Maize",
+                    "Narrow, broken pale-yellow to white streaks along the veins, starting on the youngest leaves; plants infected early are stunted with small or no cobs.",
+                    "Spread by leafhoppers (Cicadulina) from grasses and older maize, not by seed or touch. Worst in late-planted maize next to older crops."},
             {"cassava_mosaic", "Cassava mosaic disease", "Cassava mosaic begomoviruses", "Cassava",
                     "Yellow or pale green mosaic patches, twisted and narrowed leaves, stunted plants.",
                     "Spread by whiteflies and by planting cuttings from infected plants."},
@@ -113,6 +118,10 @@ final class Catalogue {
             {"maize_lethal_necrosis", "CULTURAL", "Clean seed", "Use certified seed and tolerant varieties; control weeds that host the vectors."},
             {"maize_lethal_necrosis", "CHEMICAL", "Control vectors", "Seed treatment or sprays against thrips and aphids early in the season, per local advice."},
 
+            {"maize_streak_virus", "CULTURAL", "Tolerant varieties, plant early", "Plant hybrids rated tolerant to maize streak virus with the first rains; avoid staggered planting next to older maize."},
+            {"maize_streak_virus", "CULTURAL", "Rogue and weed", "Pull out stunted, streaked young plants and control the grass weeds that host the leafhoppers."},
+            {"maize_streak_virus", "CHEMICAL", "Leafhopper control", "A seed treatment against leafhoppers where locally registered. Sprays after streaks appear do not cure infected plants."},
+
             {"cassava_mosaic", "CULTURAL", "Clean cuttings", "Plant cuttings only from healthy, symptom-free plants; use resistant varieties."},
             {"cassava_mosaic", "CULTURAL", "Rogue early", "Pull out plants showing symptoms in the first 3 months and replace them."},
 
@@ -165,9 +174,19 @@ final class Catalogue {
             row.scientificName = c[1];
             db.crops().insert(row);
         }
+        addMissing(db);
+    }
+
+    /**
+     * Adds every disease and pest not yet in the database, with its treatments. On a fresh
+     * database that is all of them; on one seeded by an older version, only the new entries.
+     */
+    static void addMissing(DevPlantDatabase db) {
+        Set<String> added = new HashSet<>();
 
         List<DiseaseRow> diseases = new ArrayList<>();
         for (String[] d : DISEASES) {
+            if (db.catalogue().disease(d[0]) != null) continue;
             DiseaseRow row = new DiseaseRow();
             row.subjectKey = d[0];
             row.name = d[1];
@@ -176,11 +195,13 @@ final class Catalogue {
             row.symptoms = d[4];
             row.spread = d[5];
             diseases.add(row);
+            added.add(d[0]);
         }
-        db.catalogue().insertDiseases(diseases);
+        if (!diseases.isEmpty()) db.catalogue().insertDiseases(diseases);
 
         List<PestRow> pests = new ArrayList<>();
         for (String[] p : PESTS) {
+            if (db.catalogue().pest(p[0]) != null) continue;
             PestRow row = new PestRow();
             row.subjectKey = p[0];
             row.name = p[1];
@@ -189,12 +210,14 @@ final class Catalogue {
             row.symptoms = p[4];
             row.spread = p[5];
             pests.add(row);
+            added.add(p[0]);
         }
-        db.catalogue().insertPests(pests);
+        if (!pests.isEmpty()) db.catalogue().insertPests(pests);
 
         List<TreatmentRow> treatments = new ArrayList<>();
         for (int i = 0; i < TREATMENTS.length; i++) {
             String[] t = TREATMENTS[i];
+            if (!added.contains(t[0])) continue;
             TreatmentRow row = new TreatmentRow();
             row.subjectKey = t[0];
             row.method = t[1];
@@ -203,6 +226,6 @@ final class Catalogue {
             row.sortOrder = i;
             treatments.add(row);
         }
-        db.catalogue().insertTreatments(treatments);
+        if (!treatments.isEmpty()) db.catalogue().insertTreatments(treatments);
     }
 }

@@ -1,0 +1,96 @@
+/* mixes: the officer dashboard. Colours and buttons come from ../mixes/style.css. */
+:root {
+  --reported: #6E7B71; --review: #B2834C; --verified: #2F7A3E; --hot: #B5432F;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --reported: #9DB0A0; --review: #D9AE74; --verified: #6BC27A; --hot: #E07A62; }
+}
+
+.o-brand-sub { font-style: italic; color: var(--ink-soft); font-size: 18px; }
+.o-who { display: flex; align-items: center; gap: 12px; font-size: 14px; color: var(--ink-soft); }
+.o-main { padding-top: 28px; padding-bottom: 64px; }
+h1, h2, h3 { font-family: var(--serif); font-weight: 400; letter-spacing: -.02em; }
+h1 { font-size: 36px; margin: 0 0 8px; }
+h2 { font-size: 24px; margin: 0 0 12px; }
+h3 { font-size: 18px; margin: 0 0 6px; }
+
+.o-signin { max-width: 26rem; margin: 40px auto; }
+.o-form { display: grid; gap: 14px; margin-top: 20px; }
+label { display: grid; gap: 6px; font-size: 14px; font-weight: 600; }
+input, select, textarea {
+  font: inherit; font-weight: 400; color: var(--ink); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; min-width: 0;
+}
+textarea { min-height: 84px; resize: vertical; }
+.o-error { color: var(--disease); margin: 0; min-height: 1.5em; font-size: 14px; }
+
+.o-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); margin-bottom: 18px; overflow-x: auto; }
+.o-tabs button {
+  background: none; border: 0; border-bottom: 3px solid transparent; padding: 10px 14px;
+  font-weight: 600; color: var(--ink-soft); cursor: pointer; white-space: nowrap;
+}
+.o-tabs button[aria-selected="true"] { color: var(--forest); border-bottom-color: var(--forest); }
+.o-count { display: inline-block; min-width: 22px; padding: 0 6px; border-radius: 11px; background: var(--hot); color: #fff; font-size: 12px; line-height: 22px; text-align: center; }
+
+.o-filters { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; margin-bottom: 22px; }
+.o-filters label { flex: 1 1 140px; max-width: 220px; }
+.o-filters input, .o-filters select { height: 42px; }
+
+.o-metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; margin-bottom: 22px; }
+.o-metric { background: var(--surface); border-radius: 18px; padding: 16px 18px; box-shadow: var(--shadow); }
+.o-metric span { display: block; font-size: 13px; color: var(--ink-soft); }
+.o-metric b { display: block; font-family: var(--serif); font-weight: 500; font-size: 36px; line-height: 1.2; }
+
+.o-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; }
+.o-panel { background: var(--surface); border-radius: 18px; padding: 18px 20px; box-shadow: var(--shadow); min-width: 0; }
+.o-note { font-size: 13px; color: var(--ink-soft); margin: 8px 0 0; }
+
+.o-bars { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.o-bars li { display: grid; grid-template-columns: minmax(0, 1fr) 40px; gap: 4px 10px; font-size: 14px; }
+.o-bars .o-bar { grid-column: 1 / -1; height: 8px; border-radius: 4px; background: var(--line-soft); overflow: hidden; }
+.o-bars .o-bar i { display: block; height: 100%; background: var(--sky); border-radius: 4px; }
+.o-bars b { text-align: right; }
+
+.o-hot { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.o-hot li { border-left: 4px solid var(--hot); padding: 6px 12px; background: var(--surface-soft); border-radius: 0 10px 10px 0; font-size: 14px; }
+
+.o-pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; color: #fff; white-space: nowrap; }
+.o-pill.REPORTED { background: var(--reported); }
+.o-pill.UNDER_REVIEW { background: var(--review); }
+.o-pill.FIELD_VERIFIED { background: var(--verified); }
+.o-pill.soft { background: var(--line); color: var(--ink); }
+
+.o-table-wrap { overflow-x: auto; background: var(--surface); border-radius: 18px; box-shadow: var(--shadow); }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line-soft); vertical-align: top; }
+th { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--ink-soft); }
+tbody tr { cursor: pointer; }
+tbody tr:hover, tbody tr:focus-visible { background: var(--surface-soft); }
+td small { display: block; color: var(--ink-soft); }
+
+.o-questions { display: grid; gap: 14px; }
+.o-question p { margin: 6px 0; white-space: pre-wrap; }
+.o-question .o-answer { border-left: 3px solid var(--fix); padding-left: 12px; }
+.o-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.o-empty { text-align: center; color: var(--ink-soft); padding: 40px 16px; }
+
+.o-dialog { border: 0; border-radius: 20px; padding: 0; width: min(560px, calc(100vw - 32px)); background: var(--surface); color: var(--ink); box-shadow: var(--shadow-big); }
+.o-dialog::backdrop { background: rgba(15, 22, 17, .45); }
+.o-dialog-in { padding: 22px 24px; display: grid; gap: 12px; }
+.o-facts { display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; margin: 0; font-size: 14px; }
+.o-facts dt { color: var(--ink-soft); }
+.o-facts dd { margin: 0; }
+.o-status { display: flex; flex-wrap: wrap; gap: 8px; }
+.o-status label { display: flex; align-items: center; gap: 6px; font-weight: 500; border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; cursor: pointer; }
+.o-status input { margin: 0; }
+
+/* style.css hides small header buttons on phones; Sign out must stay. */
+.bar .o-who .btn.small { display: inline-flex; }
+
+@media (max-width: 600px) {
+  h1 { font-size: 30px; }
+  .o-metrics { grid-template-columns: 1fr 1fr; }
+  .o-metric b { font-size: 30px; }
+  .o-filters label { max-width: none; }
+  .o-who span { display: none; }
+}

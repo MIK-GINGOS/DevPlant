@@ -29,12 +29,15 @@ import com.mixesgates.devplant.mixes.mm_fields.FieldsFragment;
 import com.mixesgates.devplant.mixes.mm_history.HistoryFragment;
 import com.mixesgates.devplant.mixes.mm_library.GuideEntryFragment;
 import com.mixesgates.devplant.mixes.mm_library.LibraryFragment;
+import com.mixesgates.devplant.mixes.mm_reports.Reports;
+import com.mixesgates.devplant.mixes.mm_reports.ReportsFragment;
 import com.mixesgates.devplant.mixes.mm_result.ResultFragment;
 import com.mixesgates.devplant.mixes.mm_scan.ScanFragment;
 import com.mixesgates.devplant.mixes.mm_search.SearchFragment;
 import com.mixesgates.devplant.mixes.mm_settings.SettingsFragment;
 import com.mixesgates.devplant.mixes.mm_settings.ThemePrefs;
 import com.mixesgates.devplant.mixes.mm_theme.Ui;
+import com.mixesgates.devplant.mixes.mm_welcome.WelcomeFragment;
 
 /** The one activity: header on top, pager of main screens, the menu at the bottom, details above. */
 public class ShellActivity extends AppCompatActivity implements Nav {
@@ -74,7 +77,7 @@ public class ShellActivity extends AppCompatActivity implements Nav {
         }, new ControlMenu.Tile[]{
                 ControlMenu.Tile.action("Alerts", R.drawable.mm_ic_cc_bell_line, this::openAlerts),
                 ControlMenu.Tile.planned("Location", R.drawable.mm_ic_cc_location),
-                ControlMenu.Tile.planned("Share", R.drawable.mm_ic_cc_share),
+                ControlMenu.Tile.action("Reports", R.drawable.mm_ic_cc_share, () -> open(new ReportsFragment())),
                 ControlMenu.Tile.action("Settings", R.drawable.mm_ic_cc_sliders, this::openSettings),
                 ControlMenu.Tile.page("Camera", R.drawable.mm_ic_cc_camera, TAB_SCAN, () -> showTab(TAB_SCAN)),
                 ControlMenu.Tile.planned("Add", R.drawable.mm_ic_cc_add),
@@ -138,6 +141,13 @@ public class ShellActivity extends AppCompatActivity implements Nav {
 
         store.listen(this, this::refreshUnread, Changes.Topic.ALERTS);
         refreshUnread();
+
+        // First launch: the welcome screen asks about sharing before anything else.
+        if (savedInstanceState == null) {
+            store.load(this, s -> Reports.of(this).consent(), consent -> {
+                if (!consent.decided) open(new WelcomeFragment());
+            });
+        }
     }
 
     private void refreshUnread() {

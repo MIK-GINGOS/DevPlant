@@ -1,4 +1,3 @@
-import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useDeferredValue, useState } from 'react';
 import { FlatList, Pressable, StyleSheet, TextInput, View } from 'react-native';
@@ -6,6 +5,7 @@ import { FlatList, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import type { Plant } from '@/contracts/shapes';
 import { searchPlants, useCatalog } from '@/bridge/catalog';
 import { showTab, TAB_LIBRARY } from '@/mixes/nav';
+import { PlantPhoto } from '@/mixes/plantPhoto';
 import { useColors } from '@/mixes/theme';
 import { Chip, ChipRow, Empty, ISLAND_CLEARANCE, Row, Txt } from '@/mixes/ui';
 
@@ -68,11 +68,11 @@ function PlantCard({ plant }: { plant: Plant }) {
       accessibilityLabel={plant.name}
       onPress={() => router.push(`/plant/${plant.key}`)}
       style={({ pressed }) => [styles.card, { backgroundColor: c.surface, borderColor: c.line }, pressed && { opacity: 0.7 }]}>
-      <Image
-        source={{ uri: plant.imageUrl }}
+      <PlantPhoto
+        key={plant.key}
+        plant={plant}
         style={{ height: 120, backgroundColor: c.leafSoft }}
         contentFit="cover"
-        cachePolicy="disk"
         transition={150}
         recyclingKey={plant.key}
       />

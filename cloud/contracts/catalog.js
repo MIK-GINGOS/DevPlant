@@ -23,6 +23,7 @@
  * @property {string} image_source     where the photo comes from (Wikimedia Commons page)
  * @property {string} image_license
  * @property {string} image_author
+ * @property {string} wikipedia        Wikipedia article, or empty
  * @property {Problem[]} problems      always 4
  */
 

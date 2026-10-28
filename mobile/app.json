@@ -46,7 +46,8 @@
       ]
     ],
     "extra": {
-      "catalogUrl": "https://devplant-cloud.vercel.app"
+      "catalogUrl": "https://devplant-cloud.vercel.app",
+      "catalogMirror": "https://cdn.jsdelivr.net/gh/MIK-GINGOS/DevPlant@main/cloud"
     },
     "experiments": {
       "typedRoutes": true,

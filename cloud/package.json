@@ -2,7 +2,7 @@
   "name": "devplant-cloud",
   "version": "0.1.0",
   "private": true,
-  "description": "DevPlant catalogue engine for Vercel: 600 plants, their photos and common problems.",
+  "description": "DevPlant cloud on Vercel: the plant catalogue, and reports from phones for extension officers.",
   "type": "module",
   "engines": {
     "node": ">=20"
@@ -10,6 +10,10 @@
   "scripts": {
     "dev": "node scripts/dev.mjs",
     "check": "node scripts/check.mjs",
-    "import": "node scripts/import-catalog.mjs"
+    "import": "node scripts/import-catalog.mjs",
+    "check:reports": "node scripts/check-reports.mjs"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.0.2"
   }
 }

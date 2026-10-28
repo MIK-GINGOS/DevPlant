@@ -1,10 +1,10 @@
-import { Image } from 'expo-image';
 import { useLocalSearchParams } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import { Pressable } from 'react-native';
 
 import type { PlantProblem } from '@/contracts/shapes';
 import { usePlant } from '@/bridge/catalog';
+import { PlantPhoto } from '@/mixes/plantPhoto';
 import { useColors } from '@/mixes/theme';
 import { Card, Empty, Page, Pill, Row, Txt } from '@/mixes/ui';
 
@@ -17,11 +17,11 @@ export default function PlantScreen() {
 
   return (
     <Page>
-      <Image
-        source={{ uri: p.imageUrl }}
+      <PlantPhoto
+        key={p.key}
+        plant={p}
         style={{ height: 240, borderRadius: 18, backgroundColor: c.leafSoft }}
         contentFit="contain"
-        cachePolicy="disk"
         accessibilityLabel={`Photo of ${p.name}`}
       />
       <Txt type="title" style={{ marginTop: 16 }}>{p.name}</Txt>
