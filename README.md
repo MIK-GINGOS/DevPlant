@@ -116,7 +116,7 @@ Release builds are signed only when a `keystore.properties` file (not in the rep
 
 ## Fortland Android preview
 
-Fortland is a separate Android app. [Download the latest Fortland 1.5 test build](https://github.com/MIK-GINGOS/fortland/releases/tag/v1.5-dev1). This APK is debug-signed; installing it over a release-signed version may require uninstalling the older app first, which removes its local data.
+Fortland is a separate Android app. [Download the latest Fortland 1.5 test build](https://github.com/MIK-GINGOS/DevPlant/releases/download/fortland-v1.5-dev1/app-debug.apk). [Release notes](https://github.com/MIK-GINGOS/DevPlant/releases/tag/fortland-v1.5-dev1). This APK is debug-signed; installing it over a release-signed version may require uninstalling the older app first, which removes its local data.
 
 ## Disclaimer
 
