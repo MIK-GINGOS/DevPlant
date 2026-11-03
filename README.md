@@ -114,6 +114,10 @@ Requires Android Studio (or the Android SDK) and JDK 21.
 Release builds are signed only when a `keystore.properties` file (not in the repo) provides
 `storeFile`, `storePassword`, `keyAlias` and `keyPassword`.
 
+## Fortland Android preview
+
+Fortland is a separate Android app. [Download the latest Fortland 1.5 test build](https://github.com/MIK-GINGOS/fortland/releases/tag/v1.5-dev1). This APK is debug-signed; installing it over a release-signed version may require uninstalling the older app first, which removes its local data.
+
 ## Disclaimer
 
 Treatment advice is general. Confirm serious problems with a local agricultural extension
